@@ -2,12 +2,10 @@
 
 namespace DodoTestGenerator\Robo\Task;
 
+use DodoTestGenerator\Robo\Task\Generator\TestGenerator;
 use DodoTestGenerator\Robo\Task\Locator\TestsLocator;
-use DodoTestGenerator\Robo\Task\TestGenerator\PhpTestGenerator;
 use DodoTestGenerator\Robo\Task\Parser\TestsParser;
-use DodoTestGenerator\Robo\Task\Traspiler\Transpiler;
 use Robo\Collection\CollectionBuilder;
-use Robo\Result;
 
 /**
  * Load DodoTestGenerator Robo tasks.
@@ -22,7 +20,8 @@ trait loadTasks {
     return $this->task(TestsParser::class, $test);
   }
 
-  protected function taskGenerateTest($tests = NULL): CollectionBuilder {
-    return $this->task(TestsParser::class, $tests);
+  protected function taskGenerateTest($test = NULL): CollectionBuilder {
+    return $this->task(TestGenerator::class, $test);
   }
+
 }

@@ -1,6 +1,8 @@
 <?php
 
 use DodoTestGenerator\Robo\Task\loadTasks;
+use PhpParser\NodeFinder;
+use PhpParser\ParserFactory;
 use PHPUnit\Framework\TestSuite;
 use Robo\Robo;
 use Robo\Tasks;
@@ -18,12 +20,17 @@ class RoboFile extends Tasks {
       ->run();
 
     if ($tests->wasSuccessful()) {
-      foreach ($tests as &$test) {
+      foreach ($tests->getData() as &$test) {
         $test['transpiled'] = $this->getTraspiledFile($test['test_path']);
-        $test['parsed'] = $this->taskParseTests($test)->run();
+        $test = $this->taskParseTests($test)
+          ->run()->getData();
+        $test = $this->taskGenerateTest($test);
+        $this->writeTest('asp', print_r($test, TRUE));
         break;
       }
     }
+
+    $this->say();''
   }
 
   /**
@@ -40,6 +47,16 @@ class RoboFile extends Tasks {
   }
 
   /**
+   * @param $test_name
+   * @param $test_code
+   */
+  public function writeTest($test_name, $test_code) {
+    $this->taskWriteToFile('/var/www/tests/' . $test_name . '.php')
+      ->text($test_code)
+      ->run();
+  }
+
+  /**
    * @param $test
    * @param $method
    *
@@ -50,16 +67,6 @@ class RoboFile extends Tasks {
       ->bootstrap('/var/www/tests/bootstrap.php')
       ->filter($method)
       ->file('/var/www/tests/' . $test . '.php')
-      ->run();
-  }
-
-  /**
-   * @param $test_name
-   * @param $test_code
-   */
-  public function writeTest($test_name, $test_code) {
-    $this->taskWriteToFile('/var/www/tests/' . $test_name . '.php')
-      ->text($test_code)
       ->run();
   }
 

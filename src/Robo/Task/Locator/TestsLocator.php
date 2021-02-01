@@ -2,15 +2,9 @@
 
 namespace DodoTestGenerator\Robo\Task\Locator;
 
-use _HumbugBox5d215ba2066e\ReflectionUnionType;
-use DodoTestGenerator\Helper\Sanitizer;
-use Exception;
-use Robo\Common\IO;
-use Robo\Common\TaskIO;
 use Robo\Result;
-use RuntimeException;
-use Symfony\Component\Finder\Finder;
 use Robo\Task\BaseTask;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Class TestsLocator
@@ -24,7 +18,7 @@ class TestsLocator extends BaseTask {
 
   const W3C_TESTS = "/var/www/vendor/fgnass/domino/test/w3c/level1/html";
 
-  //  const WPT_TESTS = "/var/www/vendor/web-platform-tests/wpt/dom/nodes";
+  const WPT_TESTS = "/var/www/vendor/web-platform-tests/wpt/dom/nodes";
 
   /**
    * FileLoader constructor.
@@ -44,23 +38,59 @@ class TestsLocator extends BaseTask {
     }
 
     $tests = [];
-    //pick a few for testing
-    $w3c_test = $this->finder->name('anchor01.js')->name('HTMLDocument01.js')
-      ->in(self::W3C_TESTS);
+
+    //pick a few W3C tests
+    $w3c_test = $this->getSampleW3cTests();
 
     if ($this->finder->hasResults()) {
-      foreach ($w3c_test as $file) {
-        $tests[$file->getFilename()] = [
-          'name' => $file->getFilenameWithoutExtension(),
-          'test_path' => $file->getRealPath(),
-          'html_file' => '', //going to fill this later after converting to php
-        ];
-      }
-
-      return Result::success($this, 'All good.', $tests);
+      return Result::error($this, 'No W3C tests were found');
     }
 
-    return Result::error($this, 'No tests were found');
+    foreach ($w3c_test as $file) {
+      $tests[$file->getFilename()] = [
+        'type' => 'w3c',
+        'name' => $file->getFilenameWithoutExtension(),
+        'test_path' => $file->getRealPath(),
+        'html_file' => '', //going to fill this later after converting to php
+      ];
+    }
+
+    //$wpt_test = $this->getSampleWptTests();
+
+    return Result::success($this, 'All good.', $tests);
+  }
+
+  /**
+   * @return \Symfony\Component\Finder\Finder
+   */
+  protected function getSampleW3cTests() {
+    return $this->finder->name('doc01.js')->name('HTMLDocument01.js')
+      ->in(self::W3C_TESTS);
+  }
+
+  /**
+   * @TODO Implement
+   */
+  protected function getW3cTests() {
+
+  }
+
+  /**
+   * Return sample tests
+   *
+   * @return \Symfony\Component\Finder\Finder
+   */
+  protected function getSampleWptTests() {
+    return $this->finder->name('CharacterData-appendChild.html')
+      ->in(self::WPT_TESTS);
+  }
+
+  /**
+   * @TODO Implement
+   *
+   */
+  protected function getWptTests() {
+
   }
 
 }
