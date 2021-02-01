@@ -1,0 +1,25 @@
+{
+  "name": "dodo-test-generator",
+  "version": "1.0.0",
+  "description": "Test generator for Dodo library",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "js2php": "github:drynok/js2php"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Drynok/dodo-test-generator.git"
+  },
+  "author": "Tim A.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Drynok/dodo-test-generator/issues"
+  },
+  "homepage": "https://github.com/Drynok/dodo-test-generator#readme"
+}
