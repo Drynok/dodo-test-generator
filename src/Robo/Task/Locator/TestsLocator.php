@@ -42,7 +42,7 @@ class TestsLocator extends BaseTask {
     //pick a few W3C tests
     $w3c_test = $this->getSampleW3cTests();
 
-    if ($this->finder->hasResults()) {
+    if (!$this->finder->hasResults()) {
       return Result::error($this, 'No W3C tests were found');
     }
 
@@ -55,7 +55,16 @@ class TestsLocator extends BaseTask {
       ];
     }
 
-    //$wpt_test = $this->getSampleWptTests();
+    $wpt_test = $this->getSampleWptTests();
+
+    foreach ($w3c_test as $file) {
+      $tests[$file->getFilename()] = [
+        'type' => 'w3c',
+        'name' => $file->getFilenameWithoutExtension(),
+        'test_path' => $file->getRealPath(),
+        'html_file' => $file->getRealPath(),
+      ];
+    }
 
     return Result::success($this, 'All good.', $tests);
   }
@@ -81,7 +90,9 @@ class TestsLocator extends BaseTask {
    * @return \Symfony\Component\Finder\Finder
    */
   protected function getSampleWptTests() {
-    return $this->finder->name('CharacterData-appendChild.html')
+    return $this->finder->name("append-on-Document.html")
+      ->name("Document-doctype.html")
+      ->name('CharacterData-appendChild.html')
       ->in(self::WPT_TESTS);
   }
 

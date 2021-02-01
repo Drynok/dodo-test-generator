@@ -2,24 +2,24 @@
 
 namespace DodoTestGenerator\Robo\Task\Parser;
 
-use PhpParser\BuilderFactory;
+use Node\Expr;
 use PhpParser\Comment;
 use PhpParser\Comment\Doc;
-use PhpParser\Node\Expr\Assign;
-use PhpParser\Node\Stmt\Expression;
-use PHPUnit_Framework_TestCase;
-use Robo\Result;
-use Robo\Task\BaseTask;
 use PhpParser\Error;
-use PhpParser\NodeDumper;
-use PhpParser\ParserFactory;
 use PhpParser\Node;
+use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Variable;
+use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Function_;
+use PhpParser\NodeDumper;
+use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
+use PhpParser\ParserFactory;
 use PhpParser\PrettyPrinter;
-use PhpParser\NodeFinder;
-use PhpParser\Node\Expr\Variable;
+use Robo\Result;
+use Robo\Task\BaseTask;
 
 class TestsParser extends BaseTask {
 
@@ -76,7 +76,13 @@ class TestsParser extends BaseTask {
 
       public function leaveNode(Node $node) {
         if ($node instanceof Function_ && $node->name->toString() === $this->test_name) {
+          $node->setDocComment(new Doc('')); //remove unnecessary doc comment
+          $node->name = 'test' . ucfirst($node->name);
           return $node;
+        }
+
+        if ($node instanceof FuncCall) {
+
         }
 
         //remove all other functions
@@ -110,11 +116,15 @@ class TestsParser extends BaseTask {
    */
   protected function findFuncCall($ast, $name) {
     return $this->finder->findFirst($ast, function (Node $node) use ($name) {
-      if (isset($node->expr) && isset($node->expr->name) && $node->expr instanceof Node\Expr\FuncCall
+      if (isset($node->expr) && isset($node->expr->name) && $node->expr instanceof FuncCall
         && $node->expr->name->toString() == $name) {
         return $node;
       }
     });
+  }
+
+  protected function parseWptTest() {
+
   }
 
 }

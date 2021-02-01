@@ -1,10 +1,6 @@
 <?php
 
 use DodoTestGenerator\Robo\Task\loadTasks;
-use PhpParser\NodeFinder;
-use PhpParser\ParserFactory;
-use PHPUnit\Framework\TestSuite;
-use Robo\Robo;
 use Robo\Tasks;
 use Symfony\Component\Finder\Finder;
 
@@ -24,13 +20,12 @@ class RoboFile extends Tasks {
         $test['transpiled'] = $this->getTraspiledFile($test['test_path']);
         $test = $this->taskParseTests($test)
           ->run()->getData();
-        $test = $this->taskGenerateTest($test);
-        $this->writeTest('asp', print_r($test, TRUE));
+        $test = $this->taskGenerateTest($test)->run()->getData();
+        $this->writeTest('asp', print_r($test['ast'], TRUE));
+        $this->writeTest('asp_tr', print_r($test['transpiled'], TRUE));
         break;
       }
     }
-
-    $this->say();''
   }
 
   /**
