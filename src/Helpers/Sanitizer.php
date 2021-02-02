@@ -1,8 +1,6 @@
 <?php
 
-namespace DodoTestGenerator\Helper;
-
-use DodoTestGenerator\Helper;
+namespace DodoTestGenerator\Helpers;
 
 /**
  * Class Sanitizer

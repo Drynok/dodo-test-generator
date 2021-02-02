@@ -16,7 +16,7 @@ use Symfony\Component\Finder\Finder;
  */
 class TestsLocator extends BaseTask {
 
-  const W3C_TESTS = "/var/www/vendor/fgnass/domino/test/w3c/level1/html";
+  const W3C_TESTS = "/var/www/vendor/fgnass/domino/test/w3c/level1";
 
   const WPT_TESTS = "/var/www/vendor/web-platform-tests/wpt/dom/nodes";
 
@@ -78,13 +78,6 @@ class TestsLocator extends BaseTask {
   }
 
   /**
-   * @TODO Implement
-   */
-  protected function getW3cTests() {
-
-  }
-
-  /**
    * Return sample tests
    *
    * @return \Symfony\Component\Finder\Finder
@@ -94,6 +87,13 @@ class TestsLocator extends BaseTask {
       ->name("Document-doctype.html")
       ->name('CharacterData-appendChild.html')
       ->in(self::WPT_TESTS);
+  }
+
+  /**
+   * @TODO Implement
+   */
+  protected function getW3cTests() {
+
   }
 
   /**

@@ -2,6 +2,7 @@
 
 use DodoTestGenerator\Robo\Task\loadTasks;
 use Robo\Tasks;
+
 use Symfony\Component\Finder\Finder;
 
 class RoboFile extends Tasks {
@@ -10,8 +11,13 @@ class RoboFile extends Tasks {
   use \Robo\Task\Testing\loadTasks;
   use \Robo\Task\File\loadTasks;
 
-  public function build() {
+  /**
+   * @param string $mode
+   * $mode = ['file']
+   */
+  public function build($mode = 'file', $run = TRUE, $debug = TRUE) {
     $this->stopOnFail(TRUE);
+    //locate W3C and WPT tests
     $tests = $this->taskTestsLocator(new Finder())
       ->run();
 
@@ -21,10 +27,28 @@ class RoboFile extends Tasks {
         $test = $this->taskParseTests($test)
           ->run()->getData();
         $test = $this->taskGenerateTest($test)->run()->getData();
-        $this->writeTest('asp', print_r($test['ast'], TRUE));
-        $this->writeTest('asp_tr', print_r($test['transpiled'], TRUE));
+
+        if ($mode == 'file') {
+          $method_name = ucfirst($test['name']);
+          $this->writeTest($method_name, $test['transpiled']);
+
+          if ($run) {
+            $this->runTestFromFile($method_name, $method_name);
+          }
+          //$this->runTestFromFile($method_name . '.php', $method_name);
+
+          if ($debug) {
+            $this->writeTest($method_name . 'AstTest', print_r($test['ast'], TRUE));
+          }
+        }
+        else {
+          //execute right away
+        }
         break;
       }
+    }
+    else {
+      $this->say('Something went wrong');
     }
   }
 
@@ -57,9 +81,9 @@ class RoboFile extends Tasks {
    *
    * @return \Robo\Result
    */
-  public function runTest($test, $method) {
+  public function runTestFromFile($test, $method) {
     return $this->taskPhpUnit()
-      ->bootstrap('/var/www/tests/bootstrap.php')
+      ->bootstrap('/var/www/vendor/autoload.php')
       ->filter($method)
       ->file('/var/www/tests/' . $test . '.php')
       ->run();

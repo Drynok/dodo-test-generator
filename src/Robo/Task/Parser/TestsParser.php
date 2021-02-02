@@ -3,6 +3,7 @@
 namespace DodoTestGenerator\Robo\Task\Parser;
 
 use Node\Expr;
+use PhpParser\BuilderFactory;
 use PhpParser\Comment;
 use PhpParser\Comment\Doc;
 use PhpParser\Error;
@@ -12,6 +13,7 @@ use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Function_;
+use PhpParser\Node\Stmt\If_;
 use PhpParser\NodeDumper;
 use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
@@ -37,11 +39,18 @@ class TestsParser extends BaseTask {
    */
   private $dumper;
 
+  /**
+   * @var \PhpParser\BuilderFactory
+   */
+  private $factory;
+
   public function __construct($test) {
     $this->test = $test;
     $this->finder = new NodeFinder;
     $this->parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     $this->dumper = new NodeDumper;
+    $this->pretty_printer = new PrettyPrinter\Standard;
+    $this->factory = new BuilderFactory;
   }
 
   public function run() {
@@ -81,8 +90,8 @@ class TestsParser extends BaseTask {
           return $node;
         }
 
-        if ($node instanceof FuncCall) {
-
+        if ($node instanceof If_) {
+          return NodeTraverser::REMOVE_NODE;
         }
 
         //remove all other functions
@@ -100,13 +109,22 @@ class TestsParser extends BaseTask {
 
     $ast = $traverser->traverse($ast);
     $this->test['ast'] = $ast;
+    //    $test_function = (array) $ast[0];
+    //    $factory = new BuilderFactory;
+    //    $node = $factory->namespace('Something')
+    //      ->addStmt($factory->method($test_function['name'])
+    //        ->addStmt($test_function['stmts'])
+    //        ->makePublic()->getNode())
+    //      ->getNode();
+    //
+    //    $stmts = (array) $node;
 
     $load_func = $this->findFuncCall($ast, 'load');
     $this->test['html_file'] = $load_func->var->name;
 
     //AST -> PHP
-    $prettyPrinter = new PrettyPrinter\Standard;
-    $this->test['transpiled'] = $prettyPrinter->prettyPrint($ast);
+    $this->test['transpiled'] = $this->makeFuncPublic($this->pretty_printer->prettyPrint($ast));
+    $this->test['transpiled'] = $this->removeDisparity($this->test['transpiled']);
   }
 
   /**
@@ -123,8 +141,21 @@ class TestsParser extends BaseTask {
     });
   }
 
-  protected function parseWptTest() {
+  protected function makeFuncPublic($code) {
+    return str_replace('function', "public function", $code);
+  }
 
+  /**
+   *
+   */
+  protected function removeDisparity($code) {
+    $code = str_replace('global $builder;', '', $code);
+    $code = str_replace('$success = null;', '', $code);
+    $code = str_replace('load(', '$this->load(', $code);
+    $code = str_replace('$doc->', '$this->', $code);
+    $code = str_replace("assertEquals('titleLink',", '$this->assertEquals(', $code);
+
+    return $code;
   }
 
 }

@@ -45,9 +45,15 @@ class TestGenerator extends BaseTask {
   }
 
   public function run(): Result {
-
-
+    $this->generateFromScaffold();
     return Result::success($this, 'All good.', $this->test);
+  }
+
+  protected function generateFromScaffold() {
+    $test_scaffold = file_get_contents('/var/www/tests/TestScaffold.php');
+    $test_scaffold = str_replace("%test_function%", $this->test['transpiled'], $test_scaffold);
+    $test_scaffold = str_replace("%test_class%", ucfirst($this->test['name']), $test_scaffold);
+    $this->test['transpiled'] = $test_scaffold;
   }
 
   /**

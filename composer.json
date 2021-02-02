@@ -41,6 +41,18 @@
           "reference": "master"
         }
       }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "drynok/dodo",
+        "version": "1.0",
+        "source": {
+          "url": "https://github.com/drynok/Dodo.git",
+          "type": "git",
+          "reference": "master"
+        }
+      }
     }
   ],
   "require": {
@@ -53,12 +65,16 @@
     "symfony/filesystem": "^5.2",
     "symfony/var-dumper": "^5.2",
     "phpunit/phpunit": "^9.5",
-    "linehan/dodo": "^1.0"
+    "drynok/dodo": "^1.0",
+    "wikimedia/remex-html": "^2.2"
   },
   "autoload": {
     "psr-4": {
       "DodoTestGenerator\\": "src"
-    }
+    },
+    "classmap": [
+      "tests/SimpleTest.php"
+    ]
   },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.18",
